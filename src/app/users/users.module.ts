@@ -3,7 +3,7 @@ import { Routes, RouterModule } from '@angular/router';
 import { StoreModule } from '@ngrx/store';
 import { EffectsModule } from '@ngrx/effects';
 
-import * as ordersStore from './store';
+import * as usersStore from './store';
 // Services
 import * as fromServices from './services';
 // Guards
@@ -20,13 +20,13 @@ import * as modProperties from './mod-properties';
 const routes: Routes = [
 {
   path: '',
-  component: fromContainers.OrdersComponent,
+  component: fromContainers.UsersComponent,
   data: {store: modProperties.storeName, modName: modProperties.modName},
   canActivate: [ListGuard]
 },
 {
   path: ':orderId',
-  component: fromContainers.OrderComponent,
+  component: fromContainers.UserComponent,
   pathMatch: 'full'
 }];
 
@@ -34,12 +34,12 @@ const routes: Routes = [
   imports: [
     ListModule.forRoot(),
     RouterModule.forChild(routes),
-    StoreModule.forFeature(modProperties.storeName, ordersStore.reducers),
-    EffectsModule.forFeature([ordersStore.OrdersEffects])
+    StoreModule.forFeature(modProperties.storeName, usersStore.reducers),
+    EffectsModule.forFeature([usersStore.UsersEffects])
   ],
   declarations: [...fromContainers.containers, ...fromComponents.components],
   providers: [...fromServices.services,  ...fromGuards.guards],
 })
 
 
-export class OrdersModule { }
+export class UsersModule { }

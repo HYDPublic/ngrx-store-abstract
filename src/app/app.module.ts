@@ -33,11 +33,12 @@ const routes: Routes = [
     loadChildren: './orders/orders.module#OrdersModule'
   },
   {
-
+    path: 'users',
+    loadChildren: './users/users.module#UsersModule'
   },
   {
     path: '',
-    redirectTo: 'orders',
+    redirectTo: 'users',
     pathMatch: 'full'
   }
 ];

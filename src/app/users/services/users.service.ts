@@ -1,10 +1,10 @@
 import { Injectable } from '@angular/core';
-import { ListService } from './../../list/services/list.service';
+import { ListService } from '../../list/services/list.service';
 import { ColumnSetting } from '../../components/record-list';
 import { of, Observable } from 'rxjs';
 
 @Injectable()
-export class OrdersService extends ListService {
+export class UsersService extends ListService {
   _settings: ColumnSetting[];
   constructor() {
     super('urlToGetData');
@@ -16,14 +16,15 @@ export class OrdersService extends ListService {
   }
 
   getData(q): Observable<any> {
-    // return of({ entities: [{
-    //   id: 1,
-    //   name: 'Lorem Ipsum'
-    // }, {
-    //   id: 2,
-    //   name: 'Foo bar'
-    // }] });
-    return of(false);
+    return of({ entities: [{
+      id: 1,
+      name: 'Foo bar',
+      email: 'abcd@gmail.com'
+    }, {
+      id: 2,
+      name: 'Lorem ipsum',
+      email: 'xyz@gmail.com'
+    }] });
   }
 
   buildSettings(): ColumnSetting[] {
@@ -39,6 +40,14 @@ export class OrdersService extends ListService {
       {
         primaryKey: 'name',
         header: 'Name',
+        filter: false,
+        sortable: true,
+        viewCol: true,
+        format: 'string',
+      },
+      {
+        primaryKey: 'email',
+        header: 'Email',
         filter: false,
         sortable: true,
         viewCol: true,
