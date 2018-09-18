@@ -19,8 +19,6 @@ a {
 a:hover, a:active {
   color: #23527c;
 }
-// Copied theme css from primeng
-// WIP to update the styles for table
 body .ui-table .ui-table-caption,
 body .ui-table .ui-table-summary {
   background-color: #f4f4f4;

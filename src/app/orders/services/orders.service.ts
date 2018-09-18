@@ -16,14 +16,13 @@ export class OrdersService extends ListService {
   }
 
   getData(q): Observable<any> {
-    // return of({ entities: [{
-    //   id: 1,
-    //   name: 'Lorem Ipsum'
-    // }, {
-    //   id: 2,
-    //   name: 'Foo bar'
-    // }] });
-    return of(false);
+    return of({ entities: [{
+      id: 1,
+      name: 'Lorem Ipsum'
+    }, {
+      id: 2,
+      name: 'Foo bar'
+    }] });
   }
 
   buildSettings(): ColumnSetting[] {
