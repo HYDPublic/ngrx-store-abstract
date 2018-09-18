@@ -1,0 +1,13 @@
+ul.limit {
+  padding: 0;
+  margin: 0;
+  list-style-type: none;
+
+}
+li {
+  padding: 2px;
+}
+.expand {
+  font-size: 0.9em;
+  text-decoration: underline;
+}

@@ -1,0 +1,127 @@
+<div (window:resize)="onViewportChange($event)">
+    <p-table #table
+        [value]="records"
+        [first]="offset"
+        [(columns)]="selectedColumns"
+        [lazy]="true"
+        [rows]="rowsNum"
+        [paginator]="true"
+        [selectionMode]="selectionMode"
+        [responsive]="stackedDatatableMode"
+        [rowsPerPageOptions]="[10,20,40]"
+        [pageLinks]="3"
+        [totalRecords]="totalRecords"
+        (onRowSelect)="onRowClicked($event)"
+        (onRowDblclick)="onRowDoubleClicked($event)"
+        [(selection)]="selectedRecordData"
+        [filters]="dtFilters"
+        [loading]="loading"
+        loadingIcon="fa fa-spinner"
+        (onFilter)="filter($event)"
+        (onSort)="sort($event)"
+        (onPage)="page($event)"
+        >
+        <ng-template pTemplate="header" let-columns>
+          <tr>
+              <th *ngFor="let col of columns" [pSortableColumn]="col.primaryKey">
+                  {{col.header}}
+                  <p-sortIcon *ngIf="col.sortable == true" [field]="col.primaryKey"></p-sortIcon>
+              </th>
+          </tr>
+          <tr>
+            <th *ngFor="let col of columns" >
+                <input *ngIf="col.filter == true && !col.dropDownDate && !col.dropDownMulti && !col.dropDown" pInputText type="text" [(ngModel)]="customFilterMap[col.primaryKey]" (input)="table.filter($event.target.value,col.primaryKey,'equals')">
+                <p-calendar *ngIf="col.filter == true && col.dropDownDate == true" appendTo="body" showButtonBar="true" inputStyleClass="ui-column-filter" [style]="{'width':'100%'}" dateFormat="dd M yy" [showIcon]="false" [(ngModel)]="customFilterMap[col.primaryKey]"
+                (onSelect)="table.filter($event,col.primaryKey,'equals')" (onInput)="onCalendarInput($event, col.primaryKey)"></p-calendar>
+                <p-dropdown *ngIf="col.filter == true && col.dropDown == true" appendTo="body" name="orderFilter" [style]="{'width':'100%'}" styleClass="ui-column-filter" [options]="col.dropDownData" (onChange)="table.filter($event.value,col.primaryKey,'equals')" [(ngModel)]="customFilterMap[col.primaryKey]"></p-dropdown>
+                <p-multiSelect *ngIf=" col.filter == true && col.dropDownMulti == true" maxSelectedLabels="1" appendTo="body"  [options]="col.dropDownData" [(ngModel)]="customFilterMap[col.primaryKey]" (onChange)="table.filter($event.value,col.primaryKey,'equals')" defaultLabel="Options" ></p-multiSelect>
+            </th>
+          </tr>
+        </ng-template>
+        <ng-template pTemplate="body" let-rowData>
+          <tr [pSelectableRow]="rowData" (dblclick)="onRowDoubleClicked($event, rowData)">
+              <td *ngIf="enableRowEditButton || enableRowDeleteButton">
+                  <div style="text-align:center">
+                      <button *ngIf="enableRowEditButton" pButton type="button" class="btn btn-default btn-lg" icon="fa fa-pencil-square-o" (click)="editRecordData(rowData)"></button>
+                      <button *ngIf="enableRowDeleteButton" pButton type="button" class="btn btn-default btn-lg" icon="fa fa-remove" iconPos="left" style="background-color:red;" (click)="deleteRecordData(rowData)"></button>
+                  </div>
+              </td>
+              <td *ngIf="selectionMode == 'multiple'">
+                  <p-tableCheckbox [value]="rowData"></p-tableCheckbox>
+              </td>
+              <td *ngFor="let col of selectedColumns">
+                <div align="left" *ngIf="col.format == 'string'">
+                  <span  *ngIf="displayRules(col,rowData)" [pTooltip]="displayRules(col,rowData)" tooltipStyleClass="tooltipStyle">{{displayRules(col, rowData)}} </span>
+                  <span  *ngIf="displayRules(col,rowData) == false" [pTooltip]="getData(col.primaryKey,rowData)" tooltipStyleClass="tooltipStyle">{{getData(col.primaryKey,rowData)}}</span>
+                </div>
+                <div *ngIf="col.format == 'boolean'">
+                  <span> {{YesNoConvert(getData(col.primaryKey,rowData))}}</span>
+                </div>
+                <div align="center" *ngIf="col.format == 'date'">
+                  <span  [pTooltip]="getData(col.primaryKey,rowData)" tooltipStyleClass="tooltipStyle"> {{ getData(col.primaryKey,rowData) | date: 'dd MMM yyyy' }}</span>
+                </div>
+                <div align="center" *ngIf="col.format =='action'" style="text-align:center">
+                  <p-tieredMenu #menu [model]="rowData.actionList" [popup]="true" appendTo="body"></p-tieredMenu>
+                  <button #btn type="button" pButton icon="fa fa-cog" (click)="selectMenuItem($event, rowData , menu)"></button>
+                </div>
+                <div align="center" *ngIf="col.format =='customString'">
+                  <span > {{displayRules(col, rowData)}}</span>
+                </div>
+                <div align="center" *ngIf="col.format =='button'">
+                  <div  style="text-align:center" *ngIf="displayRules(col,rowData)">
+                    <button  [style]="{'width':'100%'}" id="GoTOProfile" type="button" pButton [label]="col.buttonLabel" (click)="selectedButton(col.primaryKey, rowData)"></button>
+                  </div>
+                </div>
+                <div align="center" class="ui-g" *ngIf="col.format =='buttonTextCombo'">
+                  <div class="ui-g-6">{{getData(col.primaryKey,rowData)}}</div>
+                  <div class="ui-g-6" style="text-align:center">
+                    <button *ngIf="displayRules(col,rowData)" style="text-align:center" pButton icon="fa-pencil-square-o" (click)="selectedButton(col.primaryKey, rowData)"></button>
+                  </div>
+                </div>
+                <div  *ngIf="col.format =='listElement'" class="ui-g">
+                  <ul class="limit">
+                    <ng-template ngFor let-rd [ngForOf]="rowData[col.primaryKey]" let-i="index">
+                      <li *ngIf="i < maxval">
+                        <div *ngIf="isString(rd)">
+                          {{ rd }}
+                        </div>
+                        <div *ngIf="!isString(rd)">
+                          {{ rd.name }}
+                          <ul>
+                            <li *ngFor="let v of rd.arr">
+                              {{v}}
+                            </li>
+                          </ul>
+                        </div>
+                      </li>
+                    </ng-template>
+                  </ul>
+                  <div *ngIf="rowData[col.primaryKey]?.length > maxval">
+                    <a class="expand" (click)="showSelectCol($event,rowData[col.primaryKey],op3);"> Show All > </a>
+                  </div>
+                </div>
+              </td>
+          </tr>
+       </ng-template>
+    </p-table>
+
+    <p-overlayPanel #op3 [showCloseIcon]="true">
+      <ul class="limit">
+      <ng-template ngFor let-rd [ngForOf]="selectedCol" let-i="index">
+          <li>
+              <div *ngIf="isString(rd)">
+                {{ rd }}
+              </div>
+              <div *ngIf="!isString(rd)">
+                {{ rd.name }}
+                <ul>
+                  <li *ngFor="let v of rd.arr">
+                    {{v}}
+                  </li>
+                </ul>
+              </div>
+          </li>
+        </ng-template>
+      </ul>
+    </p-overlayPanel>
+</div>
